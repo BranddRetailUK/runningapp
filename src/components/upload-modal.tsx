@@ -397,7 +397,7 @@ export function UploadModal({
           {step === "select" || step === "extracting" ? (
             <button className="primary-button" disabled={!file || busy} onClick={() => void processScreenshot()}>
               {step === "extracting" ? <LoaderCircle className="spin" size={18} /> : <Sparkles size={18} />}
-              Read screenshot
+              Upload
             </button>
           ) : (
             <button className="primary-button" disabled={busy} onClick={() => void saveRun()}>

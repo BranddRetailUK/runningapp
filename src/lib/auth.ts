@@ -53,8 +53,29 @@ export function requireAuthorization(request: Request) {
   return isAuthorized(request) ? null : unauthorizedResponse();
 }
 
+function firstHeaderValue(value: string | null) {
+  return value?.split(",", 1)[0]?.trim() || null;
+}
+
 export function isSameOrigin(request: Request) {
   const origin = request.headers.get("origin");
   if (!origin) return true;
-  return origin === new URL(request.url).origin;
+
+  try {
+    const requestUrl = new URL(request.url);
+    const forwardedProtocol = firstHeaderValue(
+      request.headers.get("x-forwarded-proto"),
+    );
+    const protocol =
+      forwardedProtocol === "http" || forwardedProtocol === "https"
+        ? `${forwardedProtocol}:`
+        : requestUrl.protocol;
+    const host =
+      firstHeaderValue(request.headers.get("host")) ?? requestUrl.host;
+    const publicOrigin = new URL(`${protocol}//${host}`).origin;
+
+    return new URL(origin).origin === publicOrigin;
+  } catch {
+    return false;
+  }
 }
